@@ -12,6 +12,12 @@ class Rapport extends Model
         'titre',
         'contenu',
         'date_rapport',
+        'statut',
+        'commentaire_validation',
+    ];
+
+    protected $casts = [
+        'date_rapport' => 'date',
     ];
 
     public function user(): BelongsTo

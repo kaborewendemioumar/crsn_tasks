@@ -15,7 +15,7 @@
     
 
     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-        Dashboard
+        Tableau de bord
     </x-nav-link>
 
     @if(Auth::user()->role == 'administrateur')
@@ -99,7 +99,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            Profil
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -109,7 +109,7 @@
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
-                                {{ __('Déconnexion') }}
+                                Déconnexion
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -144,7 +144,7 @@
 
             <div class="space-y-4">
                 <x-responsive-nav-link :href="route('dashboard')">
-                    Dashboard
+                    Tableau de bord
                 </x-responsive-nav-link>
 
                 @if(Auth::user()->role == 'administrateur')
@@ -213,7 +213,7 @@
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        {{ __('Déconnexion') }}
+                        Déconnexion
                     </x-responsive-nav-link>
                 </form>
             </div>

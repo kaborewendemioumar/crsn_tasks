@@ -12,8 +12,13 @@ class Livrable extends Model
         'user_id',
         'fichier',
         'commentaire',
+        'commentaire_validation',
         'statut',
         'date_soumission',
+    ];
+
+    protected $casts = [
+        'date_soumission' => 'datetime',
     ];
 
     /**

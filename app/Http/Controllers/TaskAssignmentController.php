@@ -6,6 +6,8 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\TaskAssignment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class TaskAssignmentController extends Controller
 {
@@ -13,7 +15,7 @@ class TaskAssignmentController extends Controller
     {
         $assignments = TaskAssignment::with(['task', 'user'])
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view(
             'task-assignments.index',
@@ -35,6 +37,35 @@ class TaskAssignmentController extends Controller
             compact('assignments')
         );
     }
+
+    public function progression(string $id)
+{
+    $assignment = TaskAssignment::with([
+        'task',
+        'user'
+    ])->findOrFail($id);
+
+
+    $livrables = \App\Models\Livrable::where(
+        'task_id',
+        $assignment->task_id
+    )
+    ->where(
+        'user_id',
+        $assignment->user_id
+    )
+    ->latest()
+    ->get();
+
+
+    return view(
+        'task-assignments.progression',
+        compact(
+            'assignment',
+            'livrables'
+        )
+    );
+}
 
     public function create()
     {
@@ -69,11 +100,6 @@ class TaskAssignmentController extends Controller
                 'success',
                 'Tâche affectée avec succès.'
             );
-    }
-
-    public function show(string $id)
-    {
-        //
     }
 
     public function edit(string $id)
@@ -137,4 +163,25 @@ class TaskAssignmentController extends Controller
                 'Affectation supprimée.'
             );
     }
+    public function enregistrerProgression(Request $request, string $id)
+{
+    $request->validate([
+        'progression_estimee' => 'required|integer|min:0|max:100',
+        'observation_progression' => 'nullable|string',
+    ]);
+
+    $assignment = TaskAssignment::findOrFail($id);
+
+    $assignment->update([
+        'progression_estimee' => $request->progression_estimee,
+        'observation_progression' => $request->observation_progression,
+    ]);
+
+    return redirect()
+        ->back()
+        ->with(
+            'success',
+            'Progression enregistrée avec succès.'
+        );
+}
 }

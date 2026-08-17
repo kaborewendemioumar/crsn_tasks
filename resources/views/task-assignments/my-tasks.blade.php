@@ -11,7 +11,7 @@
             Aucune tâche n'est actuellement affectée à votre compte.
         </div>
     @else
-        <table border="1" cellpadding="10" cellspacing="0" width="100%" style="margin-top:20px;">
+        <table class="table table-striped" border="1" cellpadding="10" cellspacing="0" width="100%" style="margin-top:20px;">
             <tr>
                 <th>ID</th>
                 <th>Plan</th>
@@ -30,9 +30,10 @@
                     <td>{{ $assignment->task->titre }}</td>
                     <td>{{ $assignment->task->description }}</td>
                     <td>{{ $assignment->task->priorite }}</td>
-                    <td>{{ $assignment->task->statut }}</td>
+                    <td>{{ $assignment->statut ?? $assignment->task->statut }}</td>
                     <td>{{ $assignment->date_affectation }}</td>
                     <td>{{ $assignment->date_fin_execution }}</td>
+                
                 </tr>
             @endforeach
         </table>

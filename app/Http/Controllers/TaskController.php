@@ -10,7 +10,14 @@ class TaskController extends Controller
 {
     public function index()
     {
-        $tasks = Task::with('plan')->latest()->get();
+        $tasks = Task::with('plan')
+            ->when(auth()->user()->role === 'utilisateur', function ($query) {
+                $query->whereHas('assignments', function ($query) {
+                    $query->where('user_id', auth()->id());
+                });
+            })
+            ->latest()
+            ->paginate(10);
 
         return view('tasks.index', compact('tasks'));
     }

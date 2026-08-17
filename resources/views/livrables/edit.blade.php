@@ -2,79 +2,92 @@
 
 <div class="p-6">
 
-<h2 class="text-2xl font-bold mb-4">
-Modifier Livrable
-</h2>
+    <h2 class="mb-4">
+        @if($livrable->statut === 'Rejeté' || $livrable->statut === 'En correction')
+            ✏️ Corriger et resoummettre le livrable
+        @else
+            Modifier le livrable
+        @endif
+    </h2>
 
-<form
-action="{{ route('livrables.update',$livrable->id) }}"
-method="POST">
+    {{-- Message si le livrable est rejeté --}}
+    @if($livrable->statut === 'Rejeté' || $livrable->statut === 'En correction')
+        <div class="alert alert-info">
+            <strong>💡 Correction du livrable rejeté :</strong>
+            <p>Veuillez corriger les erreurs mentionnées dans les commentaires du manager ci-dessous. Vous pouvez changer le fichier et/ou le commentaire. Une fois sauvegardé, votre livrable sera resoumis pour validation.</p>
+        </div>
 
-@csrf
-@method('PUT')
+        @if($livrable->commentaire_validation)
+            <div class="alert alert-warning">
+                <strong>📝 Commentaires du manager :</strong>
+                <p class="mt-2">{{ $livrable->commentaire_validation }}</p>
+            </div>
+        @endif
+    @endif
 
-<label>Tâche</label>
+    <form action="{{ route('livrables.update',$livrable->id) }}" method="POST" enctype="multipart/form-data">
 
-<select
-name="task_id"
-style="width:100%;padding:8px;margin-bottom:15px;">
+        @csrf
+        @method('PUT')
 
-@foreach($tasks as $task)
+        <div class="mb-3">
+            <label class="form-label fw-bold">Tâche</label>
+            <select name="task_id" class="form-control" required>
+                @foreach($tasks as $task)
+                    <option value="{{ $task->id }}" {{ $livrable->task_id == $task->id ? 'selected' : '' }}>
+                        {{ $task->titre }}
+                    </option>
+                @endforeach
+            </select>
+            @error('task_id')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
 
-<option
-value="{{ $task->id }}"
-{{ $livrable->task_id == $task->id ? 'selected' : '' }}>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Fichier actuel</label>
+            <p>
+                <a href="{{ route('livrables.download', $livrable->id) }}" target="_blank" class="btn btn-sm btn-primary">
+                    📥 Voir le fichier actuel
+                </a>
+            </p>
+        </div>
 
-{{ $task->titre }}
+        <div class="mb-3">
+            <label class="form-label fw-bold">
+                @if($livrable->statut === 'Rejeté' || $livrable->statut === 'En correction')
+                    Nouveau fichier (optionnel)
+                @else
+                    Fichier (optionnel)
+                @endif
+            </label>
+            <input type="file" name="fichier" class="form-control" accept=".pdf,.doc,.docx,.xls,.xlsx">
+            <small class="form-text text-muted">Formats acceptés: PDF, DOC, DOCX, XLS, XLSX (max 10 MB)</small>
+            @error('fichier')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
 
-</option>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Commentaire</label>
+            <textarea name="commentaire" class="form-control" rows="4">{{ $livrable->commentaire }}</textarea>
+            @error('commentaire')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
 
-@endforeach
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">
+                @if($livrable->statut === 'Rejeté' || $livrable->statut === 'En correction')
+                    💾 Enregistrer et resoummettre
+                @else
+                    💾 Mettre à jour
+                @endif
+            </button>
+            <a href="{{ route('livrables.index') }}" class="btn btn-secondary">Annuler</a>
+        </div>
 
-</select>
-
-<label>Fichier</label>
-
-<label>Fichier actuel</label>
-
-<p style="margin-bottom:10px;">
-    <a href="{{ asset('storage/'.$livrable->fichier) }}"
-       target="_blank">
-       Voir le fichier actuel
-    </a>
-</p>
-
-<label>Nouveau fichier (optionnel)</label>
-
-<input
-type="file"
-name="fichier"
-style="width:100%;padding:8px;margin-bottom:15px;">
-
-<label>Commentaire</label>
-
-<textarea
-name="commentaire"
-style="width:100%;padding:8px;margin-bottom:15px;">{{ $livrable->commentaire }}</textarea>
-
-<label>Statut</label>
-
-<select
-name="statut"
-style="width:100%;padding:8px;margin-bottom:15px;">
-
-<option value="Soumis">Soumis</option>
-<option value="Validé">Validé</option>
-<option value="Rejeté">Rejeté</option>
-
-</select>
-
-<input
-type="submit"
-value="Mettre à jour"
-style="background:blue;color:white;padding:10px;border:none;">
-
-</form>
+    </form>
 
 </div>
 

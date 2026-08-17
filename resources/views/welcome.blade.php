@@ -1,126 +1,77 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>CRSN - Gestion et Suivi des Tâches</title>
-
-<style>
-
-body{
-margin:0;
-font-family:Arial;
-background:#f4f6f9;
-}
-
-.header{
-background:#006400;
-padding:15px;
-color:white;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.logo{
-font-size:24px;
-font-weight:bold;
-}
-
-.menu{
-position:relative;
-display:inline-block;
-}
-
-.menu-btn{
-font-size:30px;
-cursor:pointer;
-}
-
-.menu-content{
-display:none;
-position:absolute;
-right:0;
-background:white;
-min-width:180px;
-box-shadow:0 0 10px #ccc;
-}
-
-.menu-content a{
-display:block;
-padding:12px;
-text-decoration:none;
-color:black;
-}
-
-.menu-content a:hover{
-background:#f0f0f0;
-}
-
-.menu:hover .menu-content{
-display:block;
-}
-
-.center{
-text-align:center;
-padding-top:120px;
-}
-
-.center h1{
-color:green;
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CRSN - Gestion et Suivi des Tâches</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">CRSN</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>    
+        </div>
 
-<body>
+        <div class="collapse navbar-collapse" id="navbarNav">
 
-<div class="header">
+<ul class="navbar-nav w-100 align-items">
 
-<div class="logo">
-CRSN
-</div>
+<li class="nav-item">
 
+<a class="nav-link text-white px-3" href="/">Accueil</a>
 
-<div class="menu">
+</li>
 
-<div class="menu-btn">
-☰
-</div>
+<li class="nav-item">
 
+<a class="nav-link text-white px-3" href="{{ route('login') }}">Connexion</a>
 
-<div class="menu-content">
-    
+</li>
 
-<a href="/">Accueil</a>
+<li class="nav-item">
 
-<a href="{{ route('login') }}">
-Connexion
-</a>
+<a class="nav-link text-white px-3" href="{{ route('register') }}">Inscription</a>
 
-<a href="{{ route('register') }}">
-Inscription
-</a>
+</li>
 
-</div>
+<li class="nav-item ms-auto">
 
-</div>
+<a class="nav-link text-white px-3" href="{{ route('aide') }}">AIDE</a>
 
-</div>
+</li>
 
-<div class="center">
-    <x-application-logo class="mx-auto h-32 w-auto" />
-
-<h1>
-Accueil du CRSN
-</h1>
-
-<p>
-Centre de Recherche en Santé de Nouna
-</p>
+</ul>
 
 </div>
+    </nav>
 
+    <main>
+        <section class="py-2 py-lg-3 bg-white">
+            <div class="container">
+                <div class="row align-items-center g-2">
+                    <div class="col-lg-7">
+                        <span class="badge bg-success-subtle text-success mb-0">Plateforme de gestion et de suivi </span>
+                        <p class="lead text-muted mb-0">
+                            CRSN centralise l’organisation des projets, le suivi des tâches pour une meilleure collaboration.
+                        </p>
+                    </div>
+                    <div class="col-lg-0">
+                        <div class="card shadow-sm border-3">
+                            <div class="card-body p-3">
+                                <x-application-logo class="mx-auto d-block mb-3" style="height: 120px; width: auto;" />
+                                <h5 class="card-title text-center fw-bold">Centre de Recherche en Santé de Nouna</h5>
+                                <p class="card-text text-muted text-center mb-0">
+                                    Une solution claire et moderne pour piloter vos activités quotidiennes.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 </body>
 </html>

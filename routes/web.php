@@ -1,3 +1,5 @@
+
+
 <?php
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -8,9 +10,27 @@ use App\Http\Controllers\TaskAssignmentController;
 use App\Http\Controllers\LivrableController;
 use App\Http\Controllers\RapportController;
 
+Route::get('/account-pending', function () {
+    return view('auth.account-pending');
+})->name('account.pending');
+
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
+
+Route::get('/aide', function () {
+
+return view('aide.index');
+
+})->name('aide');
+
+Route::get('/aide/guide', function () {
+
+return view('aide.guide');
+
+})->name('aide.guide');
+
+    
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +60,10 @@ Route::get('/dashboard', function () {
             'statut',
             'Terminée'
         )->count(),
+
+        'tasks_retard' => Task::where('date_limite', '<', now())
+            ->whereNotIn('statut', ['Terminée', 'Annulée'])
+            ->count(),
 
         'livrables_soumis' => Livrable::where(
             'statut',
@@ -93,19 +117,75 @@ Route::middleware([
         'task-assignments',
         TaskAssignmentController::class
     );
+
+    
+
+    // Voir la progression d'une affectation
+Route::get(
+    'task-assignments/{id}/progression',
+    [TaskAssignmentController::class, 'progression']
+)
+->name('task-assignments.progression');
+
+// Enregistrer ou modifier l'évaluation de progression
+Route::post(
+    'task-assignments/{id}/progression',
+    [TaskAssignmentController::class, 'enregistrerProgression']
+)
+->name('task-assignments.enregistrerProgression');
+
+    // Validation des livrables
+    Route::post(
+        'livrables/{livrable}/valider',
+        [LivrableController::class, 'valider']
+    )->name('livrables.valider');
+
+    // Rejet des livrables
+    Route::post(
+        'livrables/{livrable}/rejeter',
+        [LivrableController::class, 'rejeter']
+    )->name('livrables.rejeter');
+
+    // Validation des rapports
+Route::post(
+    'rapports/{rapport}/valider',
+    [RapportController::class, 'valider']
+)->name('rapports.valider');
+
+    // Rejet des rapports
+Route::post(
+    'rapports/{rapport}/rejeter',
+    [RapportController::class, 'rejeter']
+)->name('rapports.rejeter');
+
+
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| Administrateur
+|--------------------------------------------------------------------------
+*/
+
+
+Route::middleware([
+    'auth',
+    'role:administrateur'
+])->group(function () {
+
     Route::resource(
         'users',
         UserController::class
     );
 
-    
-
-    Route::resource(
-        'livrables',
-        LivrableController::class
-    );
+    Route::put(
+        'users/{id}/password',
+        [UserController::class, 'updatePassword']
+    )->name('users.updatePassword');
 
 });
+
 /*
 |--------------------------------------------------------------------------
 | Utilisateur
@@ -122,10 +202,18 @@ Route::middleware([
         [TaskAssignmentController::class, 'myTasks']
     )->name('task-assignments.my-tasks');
 
+    
+
+
+
     Route::resource(
         'livrables',
         LivrableController::class
     );
+
+    Route::get('livrables/{livrable}/download', [LivrableController::class, 'download'])
+        ->name('livrables.download');
+
     Route::resource(
         'rapports',
         RapportController::class
@@ -137,3 +225,4 @@ Route::get('/bienvenue', function () {
 })->middleware('auth')->name('bienvenue');
 
 require __DIR__.'/auth.php';
+

@@ -1,4 +1,4 @@
-<button type="button" id="back-button" class="btn btn-outline-secondary position-absolute" style="left:16px;top:16px;display:none;z-index:9999;" onclick="history.back()">
+<button type="button" id="back-button" class="inline-flex items-center justify-center rounded border border-blue-600 bg-blue-600 px-4 py-2 text-white shadow-sm transition hover:bg-blue-700" style="display:none; margin:0 0 1rem 0;" onclick="history.back()">
     &larr; Retour
 </button>
 

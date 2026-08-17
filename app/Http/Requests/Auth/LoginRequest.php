@@ -42,11 +42,23 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $credentials = $this->only('email', 'password');
+
+        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
+            ]);
+        }
+
+        $user = Auth::user();
+
+        if (! $user || ! $user->active) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Votre compte n\'est pas encore actif. Veuillez attendre l\'activation par  l\'administrateur.',
             ]);
         }
 

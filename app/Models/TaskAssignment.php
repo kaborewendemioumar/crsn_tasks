@@ -12,6 +12,9 @@ class TaskAssignment extends Model
         'user_id',
         'date_affectation',
         'date_fin_execution',
+        'progression_estimee',
+        'observation_progression',
+
     ];
 
     /**

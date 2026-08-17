@@ -44,11 +44,18 @@ Administrateur
 Manager
 </option>
 
-<option value="utilisateur">
+<option value="utilisateur" selected>
 Utilisateur
 </option>
 
 </select>
+
+<br><br>
+
+<label>
+    <input type="checkbox" name="active" value="1" checked>
+    Activer le compte
+</label>
 
 <br><br>
 

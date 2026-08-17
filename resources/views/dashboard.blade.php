@@ -41,6 +41,16 @@
                     </p>
                 </div>
 
+                <!-- Tâches en retard -->
+                <div class="bg-red-100 shadow rounded-lg p-6 border-l-4 border-red-600">
+                    <h3 class="text-lg font-bold">
+                        ⚠️ Tâches en retard
+                    </h3>
+                    <p class="text-4xl font-bold mt-4">
+                        {{ $tasks_retard }}
+                    </p>
+                </div>
+
                 <!-- Tâches terminées -->
                 <div class="bg-emerald-100 shadow rounded-lg p-6 border-l-4 border-emerald-600">
                     <h3 class="text-lg font-bold">

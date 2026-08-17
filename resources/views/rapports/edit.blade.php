@@ -2,43 +2,70 @@
 
 <div class="p-6">
 
-<h2>Modifier Rapport</h2>
+    <h2 class="mb-4">
+        @if($rapport->statut === 'Rejeté' || $rapport->statut === 'En correction')
+            ✏️ Corriger et resoummettre le rapport
+        @else
+            Modifier le rapport
+        @endif
+    </h2>
 
-<form
-action="{{ route('rapports.update', $rapport->id) }}"
-method="POST">
+    {{-- Message si le rapport est rejeté --}}
+    @if($rapport->statut === 'Rejeté' || $rapport->statut === 'En correction')
+        <div class="alert alert-info">
+            <strong>💡 Correction du rapport rejeté :</strong>
+            <p>Veuillez corriger les erreurs mentionnées dans les commentaires du manager ci-dessous. Une fois sauvegardé, votre rapport sera resoumis pour validation.</p>
+        </div>
 
-@csrf
-@method('PUT')
+        @if($rapport->commentaire_validation)
+            <div class="alert alert-warning">
+                <strong>📝 Commentaires du manager :</strong>
+                <p class="mt-2">{{ $rapport->commentaire_validation }}</p>
+            </div>
+        @endif
+    @endif
 
-<label>Titre</label>
+    <form action="{{ route('rapports.update', $rapport->id) }}" method="POST">
 
-<input
-type="text"
-name="titre"
-value="{{ $rapport->titre }}"
-style="width:100%;padding:8px;margin-bottom:15px;">
+        @csrf
+        @method('PUT')
 
-<label>Contenu</label>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Titre</label>
+            <input type="text" name="titre" value="{{ $rapport->titre }}" class="form-control" required>
+            @error('titre')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
 
-<textarea
-name="contenu"
-style="width:100%;padding:8px;margin-bottom:15px;">{{ $rapport->contenu }}</textarea>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Contenu</label>
+            <textarea name="contenu" class="form-control" rows="8" required>{{ $rapport->contenu }}</textarea>
+            @error('contenu')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
 
-<label>Date du rapport</label>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Date du rapport</label>
+            <input type="date" name="date_rapport" value="{{ $rapport->date_rapport }}" class="form-control" required>
+            @error('date_rapport')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
 
-<input
-type="date"
-name="date_rapport"
-value="{{ $rapport->date_rapport }}"
-style="width:100%;padding:8px;margin-bottom:15px;">
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">
+                @if($rapport->statut === 'Rejeté' || $rapport->statut === 'En correction')
+                    💾 Enregistrer et resoummettre
+                @else
+                    💾 Mettre à jour
+                @endif
+            </button>
+            <a href="{{ route('rapports.index') }}" class="btn btn-secondary">Annuler</a>
+        </div>
 
-<input
-type="submit"
-value="Mettre à jour"
-style="background:green;color:white;padding:10px;border:none;">
-
-</form>
+    </form>
 
 </div>
 

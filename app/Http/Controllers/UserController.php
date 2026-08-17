@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::all();
+        $users = User::latest()->paginate(10);
 
         return view('users.index', compact('users'));
     }
@@ -26,14 +26,16 @@ class UserController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'role' => 'required'
+            'role' => 'required',
+            'active' => 'nullable|boolean'
         ]);
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role
+            'role' => $request->role,
+            'active' => $request->boolean('active', false)
         ]);
 
         return redirect()
@@ -55,19 +57,42 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email',
-            'role' => 'required'
+            'role' => 'required',
+            'active' => 'nullable|boolean'
         ]);
 
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role
+            'role' => $request->role,
+            'active' => $request->boolean('active', false)
         ]);
 
         return redirect()
             ->route('users.index')
             ->with('success', 'Utilisateur modifié.');
     }
+    public function updatePassword(Request $request, $id)
+{
+    $user = User::findOrFail($id);
+
+    // Vérifier que seul l'administrateur peut modifier le mot de passe
+    if (auth()->user()->role !== 'administrateur') {
+        abort(403, 'Accès non autorisé.');
+    }
+
+    $request->validate([
+        'password' => 'required|min:6|confirmed',
+    ]);
+
+    $user->update([
+        'password' => Hash::make($request->password),
+    ]);
+
+    return redirect()
+        ->route('users.edit', $user->id)
+        ->with('success_password', 'Mot de passe modifié avec succès.');
+}
 
     public function destroy($id)
     {
