@@ -51,4 +51,4 @@ COPY docker/nginx.conf /etc/nginx/sites-available/default
 EXPOSE 80
 
 # Démarrer PHP-FPM et NGINX
-CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+CMD ["sh", "-c", "if [ -n \"$APP_KEY\" ]; then echo 'APP_KEY PRESENTE'; else echo 'APP_KEY ABSENTE'; fi; php-fpm -D && nginx -g 'daemon off;'"]
