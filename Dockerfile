@@ -47,4 +47,4 @@ COPY docker/nginx.conf /etc/nginx/sites-available/default
 EXPOSE 80
 
 # Exécuter les optimisations et démarrer les services au lancement du conteneur
-CMD sh -c "php artisan config:cache && php artisan route:cache && php artisan view:cache && php-fpm -D && nginx -g 'daemon off;'"
+CMD sh -c "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php-fpm -D && nginx -g 'daemon off;'"
