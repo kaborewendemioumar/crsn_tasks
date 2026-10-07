@@ -10,42 +10,42 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold" href="/">CRSN</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Ouvrir le menu">
                 <span class="navbar-toggler-icon"></span>
-            </button>    
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav w-100 align-items-lg-center">
+
+                    <li class="nav-item">
+
+                        <a class="nav-link text-white px-3" href="/">Accueil</a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link text-white px-3" href="{{ route('login') }}">Connexion</a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a class="nav-link text-white px-3" href="{{ route('register') }}">Inscription</a>
+
+                    </li>
+
+                    <li class="nav-item ms-auto">
+
+                        <a class="nav-link text-white px-3" href="{{ route('aide') }}">AIDE</a>
+
+                    </li>
+
+                </ul>
+
+            </div>
         </div>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-
-<ul class="navbar-nav w-100 align-items">
-
-<li class="nav-item">
-
-<a class="nav-link text-white px-3" href="/">Accueil</a>
-
-</li>
-
-<li class="nav-item">
-
-<a class="nav-link text-white px-3" href="{{ route('login') }}">Connexion</a>
-
-</li>
-
-<li class="nav-item">
-
-<a class="nav-link text-white px-3" href="{{ route('register') }}">Inscription</a>
-
-</li>
-
-<li class="nav-item ms-auto">
-
-<a class="nav-link text-white px-3" href="{{ route('aide') }}">AIDE</a>
-
-</li>
-
-</ul>
-
-</div>
     </nav>
 
     <main>
