@@ -17,6 +17,7 @@
                 <th>Plan</th>
                 <th>Tâche</th>
                 <th>Description</th>
+                <th>Livrables prévus</th>
                 <th>Priorité</th>
                 <th>Statut</th>
                 <th>Date Affectation</th>
@@ -29,6 +30,7 @@
                     <td>{{ $assignment->task->plan->titre ?? 'N/A' }}</td>
                     <td>{{ $assignment->task->titre }}</td>
                     <td>{{ $assignment->task->description }}</td>
+                    <td>{{ $assignment->task->nombre_livrables_prevus }}</td>
                     <td>{{ $assignment->task->priorite }}</td>
                     <td>{{ $assignment->statut ?? $assignment->task->statut }}</td>
                     <td>{{ $assignment->date_affectation }}</td>

@@ -17,12 +17,14 @@ method="POST">
 
 <select
 name="task_id"
+id="task_id"
 style="width:100%;padding:8px;margin-bottom:15px;">
 
 @foreach($tasks as $task)
 
 <option
 value="{{ $task->id }}"
+data-livrables-prevus="{{ $task->nombre_livrables_prevus }}"
 {{ $assignment->task_id == $task->id ? 'selected' : '' }}>
 
 {{ $task->titre }}
@@ -32,6 +34,15 @@ value="{{ $task->id }}"
 @endforeach
 
 </select>
+
+<label>Livrables prévus</label>
+
+<input
+type="number"
+id="nombre_livrables_prevus"
+value="{{ $assignment->task->nombre_livrables_prevus }}"
+readonly
+style="width:100%;padding:8px;margin-bottom:15px;background:#f3f4f6;">
 
 <label>Utilisateur</label>
 
@@ -75,6 +86,13 @@ value="Mettre à jour"
 style="background:blue;color:white;padding:10px;border:none;">
 
 </form>
+
+<script>
+document.getElementById('task_id').addEventListener('change', function () {
+	document.getElementById('nombre_livrables_prevus').value =
+		this.options[this.selectedIndex].dataset.livrablesPrevus;
+});
+</script>
 
 </div>
 

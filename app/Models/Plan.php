@@ -23,4 +23,20 @@ class Plan extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    public function synchroniserStatut(): void
+    {
+        if ($this->statut !== 'En attente') {
+            return;
+        }
+
+        $nombreTaches = $this->tasks()->count();
+        $nombreTachesTerminees = $this->tasks()
+            ->where('statut', 'Terminée')
+            ->count();
+
+        if ($nombreTaches > 0 && $nombreTaches === $nombreTachesTerminees) {
+            $this->update(['statut' => 'Terminé']);
+        }
+    }
 }

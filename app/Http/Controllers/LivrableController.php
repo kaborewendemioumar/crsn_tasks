@@ -4,32 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Models\Livrable;
 use App\Models\Task;
+use App\Notifications\LivrableStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LivrableController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $livrables = Livrable::with(['task', 'user'])
             ->when(Auth::user()->role === 'utilisateur', function ($query) {
                 $query->where('user_id', Auth::id());
             })
-            ->latest()
+            ->when($request->query('filter') === 'validated', function ($query) {
+                $query->where('statut', 'Validé');
+            })
+            ->when($request->query('filter') === 'submitted', function ($query) {
+                $query->where('statut', 'Soumis');
+            })
+            ->orderByDesc('date_soumission')
+            ->orderByDesc('id')
             ->paginate(10);
 
         return view('livrables.index', compact('livrables'));
     }
 
     public function create()
-{
-    $tasks = Task::join('task_assignments', 'tasks.id', '=', 'task_assignments.task_id')
-        ->where('task_assignments.user_id', Auth::id())
-        ->select('tasks.*')
-        ->get();
+    {
+        $tasks = Task::whereHas('assignments', function ($query) {
+            $query->where('user_id', Auth::id());
+        })
+            ->orderBy('titre')
+            ->get();
 
-    return view('livrables.create', compact('tasks'));
-}
+        return view('livrables.create', compact('tasks'));
+    }
 
     public function store(Request $request)
     {
@@ -95,8 +104,8 @@ class LivrableController extends Controller
             abort(403, 'Vous ne pouvez pas modifier ce livrable.');
         }
 
-        if (Auth::user()->role === 'utilisateur' && in_array($livrable->statut, ['Soumis', 'Validé'], true)) {
-            abort(403, 'Ce livrable a déjà été traité et ne peut plus être modifié.');
+        if (Auth::user()->role === 'utilisateur' && $livrable->statut !== 'Rejeté') {
+            abort(403, 'Seul un livrable rejeté peut être corrigé.');
         }
 
         $tasks = Task::all();
@@ -115,8 +124,8 @@ class LivrableController extends Controller
             abort(403, 'Vous ne pouvez pas modifier ce livrable.');
         }
 
-        if (Auth::user()->role === 'utilisateur' && in_array($livrable->statut, ['Soumis', 'Validé'], true)) {
-            abort(403, 'Ce livrable a déjà été traité et ne peut plus être modifié.');
+        if (Auth::user()->role === 'utilisateur' && $livrable->statut !== 'Rejeté') {
+            abort(403, 'Seul un livrable rejeté peut être corrigé.');
         }
 
         $request->validate([
@@ -139,15 +148,16 @@ class LivrableController extends Controller
             $fichier = $nomFichier;
         }
 
-        // Si le livrable était rejeté ou en correction, le passer à "Soumis" pour révision
-        $newStatut = in_array($livrable->statut, ['Rejeté', 'En correction']) ? 'Soumis' : $livrable->statut;
+        $resoumission = $livrable->statut === 'Rejeté';
+        $newStatut = $resoumission ? 'Soumis' : $livrable->statut;
 
         $livrable->update([
             'task_id' => $request->task_id,
             'fichier' => $fichier,
             'commentaire' => $request->commentaire,
             'statut' => $newStatut,
-            'date_soumission' => in_array($livrable->statut, ['Rejeté', 'En correction']) ? now() : $livrable->date_soumission,
+            'commentaire_validation' => $resoumission ? null : $livrable->commentaire_validation,
+            'date_soumission' => $resoumission ? now() : $livrable->date_soumission,
         ]);
 
         return redirect()
@@ -173,8 +183,12 @@ class LivrableController extends Controller
             ->route('livrables.index')
             ->with('success', 'Livrable supprimé.');
     }
-    public function valider(Livrable $livrable)
+    public function valider(Request $request, Livrable $livrable)
 {
+    $request->validate([
+        'commentaire_validation' => 'required|string|max:1000',
+    ]);
+
     // Empêcher une double validation
     if ($livrable->statut !== 'Soumis') {
         return back()->with('error', 'Ce livrable a déjà été traité.');
@@ -182,13 +196,26 @@ class LivrableController extends Controller
 
     $livrable->update([
     'statut' => 'Validé',
-    'commentaire_validation' => 'Livrable validé.',
+    'commentaire_validation' => $request->commentaire_validation,
 ]);
 
-    // Facultatif : mettre la tâche comme terminée
-    $livrable->task->update([
-        'statut' => 'Terminée',
-    ]);
+// Charger la tâche et l'utilisateur
+
+    $livrable->load(['task', 'user']);
+
+ // Envoyer l'email à l'utilisateur    
+
+    $livrable->user->notify(new LivrableStatusChanged($livrable));
+
+    $nombreLivrablesPrevus = (int) $livrable->task->nombre_livrables_prevus;
+    $nombreLivrablesValides = $livrable->task->livrables()
+        ->where('statut', 'Validé')
+        ->count();
+
+    if ($nombreLivrablesPrevus > 0 && $nombreLivrablesValides >= $nombreLivrablesPrevus) {
+        $livrable->task->update(['statut' => 'Terminée']);
+        $livrable->task->plan->synchroniserStatut();
+    }
 
     return back()->with('success', 'Livrable validé avec succès.');
 }
@@ -204,14 +231,15 @@ public function rejeter(Request $request, Livrable $livrable)
     }
 
     $livrable->update([
-    'statut' => 'Rejeté',
-    'commentaire_validation' => $request->commentaire,
-]);
-
-    // Facultatif : remettre la tâche en cours
-    $livrable->task->update([
-        'statut' => 'En cours',
+        'statut' => 'Rejeté',
+        'commentaire_rejet' => $request->commentaire_rejet,
     ]);
+
+    // Charger la tâche et l'utilisateur
+    $livrable->load(['task', 'user']);
+
+    // Envoyer l'email à l'utilisateur avec le motif du rejet
+    $livrable->user->notify(new LivrableStatusChanged($livrable));
 
     return back()->with('success', 'Livrable rejeté.');
 }

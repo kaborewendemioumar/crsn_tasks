@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\TaskAssignedNotification;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\TaskAssignment;
+use App\Models\Livrable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -46,7 +48,7 @@ class TaskAssignmentController extends Controller
     ])->findOrFail($id);
 
 
-    $livrables = \App\Models\Livrable::where(
+    $livrables = Livrable::where(
         'task_id',
         $assignment->task_id
     )
@@ -54,15 +56,25 @@ class TaskAssignmentController extends Controller
         'user_id',
         $assignment->user_id
     )
-    ->latest()
+    ->orderByDesc('date_soumission')
+    ->orderByDesc('id')
     ->get();
+
+    $totalLivrables = (int) $assignment->task->nombre_livrables_prevus;
+    $livrablesValides = $livrables->where('statut', 'Validé')->count();
+    $progressionLivrables = $totalLivrables > 0
+        ? min(100, (int) round(($livrablesValides / $totalLivrables) * 100))
+        : 0;
 
 
     return view(
         'task-assignments.progression',
         compact(
             'assignment',
-            'livrables'
+            'livrables',
+            'totalLivrables',
+            'livrablesValides',
+            'progressionLivrables'
         )
     );
 }
@@ -79,28 +91,36 @@ class TaskAssignmentController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'task_id' => 'required',
-            'user_id' => 'required',
-            'date_affectation' => 'required|date',
-            'date_fin_execution' => 'required|date|after_or_equal:date_affectation',
-        ]);
+{
+    $request->validate([
+        'task_id' => 'required',
+        'user_id' => 'required',
+        'date_affectation' => 'required|date',
+        'date_fin_execution' => 'required|date|after_or_equal:date_affectation',
+    ]);
 
-        TaskAssignment::create([
-            'task_id' => $request->task_id,
-            'user_id' => $request->user_id,
-            'date_affectation' => $request->date_affectation,
-            'date_fin_execution' => $request->date_fin_execution,
-        ]);
+    $assignment = TaskAssignment::create([
+        'task_id' => $request->task_id,
+        'user_id' => $request->user_id,
+        'date_affectation' => $request->date_affectation,
+        'date_fin_execution' => $request->date_fin_execution,
+    ]);
 
-        return redirect()
-            ->route('task-assignments.index')
-            ->with(
-                'success',
-                'Tâche affectée avec succès.'
-            );
-    }
+    // Récupérer la tâche et l'utilisateur concernés
+    $assignment->load(['task', 'user']);
+
+    // Envoyer une notification à l'utilisateur affecté
+    $assignment->user->notify(
+        new TaskAssignedNotification($assignment->task)
+    );
+
+    return redirect()
+        ->route('task-assignments.index')
+        ->with(
+            'success',
+            'Tâche affectée avec succès.'
+        );
+}
 
     public function edit(string $id)
     {
@@ -120,34 +140,41 @@ class TaskAssignmentController extends Controller
     }
 
     public function update(
-        Request $request,
-        string $id
-    )
-    {
-        $assignment =
-            TaskAssignment::findOrFail($id);
+    Request $request,
+    string $id
+) 
+{
+    $assignment = TaskAssignment::findOrFail($id);
 
-        $request->validate([
-            'task_id' => 'required',
-            'user_id' => 'required',
-            'date_affectation' => 'required|date',
-            'date_fin_execution' => 'required|date|after_or_equal:date_affectation',
-        ]);
+    $request->validate([
+        'task_id' => 'required',
+        'user_id' => 'required',
+        'date_affectation' => 'required|date',
+        'date_fin_execution' => 'required|date|after_or_equal:date_affectation',
+    ]);
 
-        $assignment->update([
-            'task_id' => $request->task_id,
-            'user_id' => $request->user_id,
-            'date_affectation' => $request->date_affectation,
-            'date_fin_execution' => $request->date_fin_execution,
-        ]);
+    $assignment->update([
+        'task_id' => $request->task_id,
+        'user_id' => $request->user_id,
+        'date_affectation' => $request->date_affectation,
+        'date_fin_execution' => $request->date_fin_execution,
+    ]);
 
-        return redirect()
-            ->route('task-assignments.index')
-            ->with(
-                'success',
-                'Affectation modifiée.'
-            );
-    }
+    // Recharger la tâche et l'utilisateur après la modification
+    $assignment->load(['task', 'user']);
+
+    // Envoyer un e-mail à l'utilisateur concerné
+    $assignment->user->notify(
+        new TaskAssignedNotification($assignment->task)
+    );
+
+    return redirect()
+        ->route('task-assignments.index')
+        ->with(
+            'success',
+            'Affectation modifiée et notification envoyée à l’utilisateur.'
+        );
+}
 
     public function destroy(string $id)
     {
@@ -165,15 +192,22 @@ class TaskAssignmentController extends Controller
     }
     public function enregistrerProgression(Request $request, string $id)
 {
+    $assignment = TaskAssignment::findOrFail($id);
     $request->validate([
-        'progression_estimee' => 'required|integer|min:0|max:100',
         'observation_progression' => 'nullable|string',
     ]);
 
-    $assignment = TaskAssignment::findOrFail($id);
+    $totalLivrables = (int) $assignment->task->nombre_livrables_prevus;
+    $livrablesValides = Livrable::where('task_id', $assignment->task_id)
+        ->where('user_id', $assignment->user_id)
+        ->where('statut', 'Validé')
+        ->count();
+    $progressionLivrables = $totalLivrables > 0
+        ? min(100, (int) round(($livrablesValides / $totalLivrables) * 100))
+        : 0;
 
     $assignment->update([
-        'progression_estimee' => $request->progression_estimee,
+        'progression_estimee' => $progressionLivrables,
         'observation_progression' => $request->observation_progression,
     ]);
 

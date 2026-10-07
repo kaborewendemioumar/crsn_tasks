@@ -100,13 +100,13 @@ Bienvenue sur la plateforme de gestion des plans d'action du
 
 <strong>Centre de Recherche en Santé de Nouna (CRSN).</strong>
 
-Cliquez sur le bouton ci-dessous pour accéder à votre espace de travail.
+Cliquez sur le bouton ci-dessous pour consulter le statut de votre compte.
 
 </p>
 
-<a href="{{ route('dashboard') }}" class="btn-crsn">
+<a href="{{ route('account.pending') }}" class="btn-crsn">
 
-Continuer vers le tableau de bord
+Continuer
 
 </a>
 

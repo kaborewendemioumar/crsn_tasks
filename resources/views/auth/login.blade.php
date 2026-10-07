@@ -74,6 +74,15 @@
             @enderror
         </div>
 
+        <!-- Mot de passe oublié -->
+        <div class="text-end mb-3">
+          <a
+            href="{{ route('password.request') }}"
+            class="text-decoration-none">
+            Mot de passe oublié ?
+          </a>
+        </div>
+
         <!-- Se souvenir de moi -->
         <div class="mb-4 form-check">
             <input

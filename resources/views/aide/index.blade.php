@@ -47,7 +47,7 @@
 
 <div class="fs-1 mb-3">📖</div>
 
-<h3 class="fw-bold">Guide</h3>
+<h3 class="fw-bold">Guide utilisateur</h3>
 
 <p class="text-muted">
 
@@ -57,7 +57,7 @@ Consultez le guide d'utilisation de la plateforme CRSN Tasks.
 
 <a href="{{ route('aide.guide') }}" class="btn btn-success px-4">
 
-Consulter le guide
+Consulter le guide utilisateur
 
 </a>
 

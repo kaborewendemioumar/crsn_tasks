@@ -8,13 +8,23 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $tasks = Task::with('plan')
             ->when(auth()->user()->role === 'utilisateur', function ($query) {
                 $query->whereHas('assignments', function ($query) {
                     $query->where('user_id', auth()->id());
                 });
+            })
+            ->when($request->query('filter') === 'pending', function ($query) {
+                $query->where('statut', 'En attente');
+            })
+            ->when($request->query('filter') === 'overdue', function ($query) {
+                $query->where('date_limite', '<', now())
+                    ->whereNotIn('statut', ['Terminée', 'Annulée']);
+            })
+            ->when($request->query('filter') === 'completed', function ($query) {
+                $query->where('statut', 'Terminée');
             })
             ->latest()
             ->paginate(10);
@@ -35,6 +45,7 @@ class TaskController extends Controller
             'plan_id' => 'required',
             'titre' => 'required|max:255',
             'description' => 'nullable',
+            'nombre_livrables_prevus' => 'required|integer|min:0',
             'priorite' => 'required',
             'date_limite' => 'required|date',
         ]);
@@ -43,6 +54,7 @@ class TaskController extends Controller
             'plan_id' => $request->plan_id,
             'titre' => $request->titre,
             'description' => $request->description,
+            'nombre_livrables_prevus' => $request->nombre_livrables_prevus,
             'priorite' => $request->priorite,
             'statut' => 'En attente',
             'date_limite' => $request->date_limite,
@@ -70,7 +82,18 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
 
+        $request->validate([
+            'plan_id' => 'required',
+            'titre' => 'required|max:255',
+            'description' => 'nullable',
+            'nombre_livrables_prevus' => 'required|integer|min:0',
+            'priorite' => 'required',
+            'statut' => 'required',
+            'date_limite' => 'required|date',
+        ]);
+
         $task->update($request->all());
+        $task->plan->synchroniserStatut();
 
         return redirect()->route('tasks.index')
             ->with('success', 'Tâche modifiée avec succès.');

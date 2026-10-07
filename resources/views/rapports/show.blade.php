@@ -103,13 +103,13 @@
             @endif
 
             {{-- Message et action si le rapport est rejeté --}}
-            @if($rapport->statut == 'Rejeté' && auth()->id() === $rapport->user_id)
+            @if($rapport->statut === 'Rejeté' && auth()->id() === $rapport->user_id)
 
                 <div class="alert alert-info">
 
                     <strong>💡 Correction disponible :</strong>
 
-                    <p>Votre rapport a été rejeté. Veuillez corriger les erreurs mentionnées ci-dessus et resoummettre.</p>
+                    <p>Vous pouvez corriger ce rapport puis le resoumettre pour une nouvelle vérification.</p>
 
                     <a href="{{ route('rapports.edit', $rapport->id) }}" class="btn btn-warning btn-sm">
                         ✏️ Corriger et resoummettre
@@ -117,24 +117,10 @@
 
                 </div>
 
-            @elseif($rapport->statut == 'En correction' && auth()->id() === $rapport->user_id)
-
-                <div class="alert alert-info">
-
-                    <strong>🔄 Rapport en correction :</strong>
-
-                    <p>Vous êtes en train de corriger ce rapport. Cliquez sur le lien ci-dessous pour continuer.</p>
-
-                    <a href="{{ route('rapports.edit', $rapport->id) }}" class="btn btn-warning btn-sm">
-                        ✏️ Continuer la correction
-                    </a>
-
-                </div>
-
             @endif
 
             {{-- Validation uniquement pour Manager/Admin --}}
-            @if(auth()->user()->role != 'utilisateur')
+            @if(auth()->user()->role != 'utilisateur' && $rapport->statut === 'Soumis')
 
                 <hr>
 
@@ -151,12 +137,13 @@
                     <div class="mb-3">
 
                         <label class="form-label">
-                            Commentaire (facultatif)
+                            Commentaire de validation (obligatoire)
                         </label>
 
                         <textarea
                             name="commentaire_validation"
                             rows="3"
+                            required
                             class="form-control"></textarea>
 
                     </div>

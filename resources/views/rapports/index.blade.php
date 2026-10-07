@@ -52,19 +52,13 @@
                     </a>
 
                     @if(auth()->user()->role === 'utilisateur' && auth()->id() === $rapport->user_id)
-                        @if($rapport->statut === 'Rejeté' || $rapport->statut === 'En correction')
+                           @if($rapport->statut === 'Rejeté')
                             <a href="{{ route('rapports.edit', $rapport->id) }}"
                                class="btn btn-sm btn-warning"
-                               title="Corriger le rapport rejeté">
+                               title="Corriger le rapport">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill me-1" viewBox="0 0 16 16">
                                     <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V11.5a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5.5z"/>
                                 </svg> Corriger
-                            </a>
-                        @elseif(!in_array($rapport->statut, ['Soumis', 'Validé'], true))
-                            <a href="{{ route('rapports.edit', $rapport->id) }}"
-                               class="btn btn-sm btn-warning"
-                               title="Modifier">
-                                <i class="bi bi-pencil-fill me-1"></i> Modifier
                             </a>
                         @endif
 

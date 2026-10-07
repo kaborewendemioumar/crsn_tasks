@@ -79,14 +79,14 @@ Route::get('/dashboard', function () {
 
     ]);
 
-})->middleware(['auth'])->name('dashboard');
+})->middleware(['auth', 'active'])->name('dashboard');
 /*
 |--------------------------------------------------------------------------
 | Profil utilisateur
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'active'])->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
@@ -106,6 +106,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware([
     'auth',
+    'active',
     'role:administrateur,manager'
 ])->group(function () {
 
@@ -171,6 +172,7 @@ Route::post(
 
 Route::middleware([
     'auth',
+    'active',
     'role:administrateur'
 ])->group(function () {
 
@@ -194,6 +196,7 @@ Route::middleware([
 
 Route::middleware([
     'auth',
+    'active',
     'role:utilisateur,administrateur,manager'
 ])->group(function () {
 

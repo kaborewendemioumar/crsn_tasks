@@ -7,17 +7,10 @@
     </h1>
 
     <p>
-        <a
-href="{{ route('plans.create') }}"
-style="
-background:#16a34a;
-color:white;
-padding:10px 15px;
-text-decoration:none;
-border-radius:5px;
-font-weight:bold;">
-Nouveau Plan
-</a>
+        <a href="{{ route('plans.create') }}"
+           style="display:inline-block;background:green;color:white;padding:10px;border:1px solid green;border-radius:4px;text-decoration:none;">
+            Nouveau Plan
+        </a>
     </p>
 
     <div class="table-responsive mt-4">
@@ -43,8 +36,8 @@ Nouveau Plan
             <td>{{ $plan->titre }}</td>
             <td>{{ $plan->description }}</td>
             <td>{{ $plan->date_debut }}</td>
-            <td>{{ $plan->date_fin }}</td>
-            <td>{{ $plan->statut }}</td>
+                <td>{{ $plan->date_fin }}</td>
+                <td>{{ $plan->statut }}</td>
 
             <td>
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -62,8 +55,8 @@ Nouveau Plan
                         @csrf
                         @method('DELETE')
 
-                        <button type="submit" aria-label="Supprimer" onclick="return confirm('Voulez-vous vraiment supprimer ce plan ?')" style="color:#dc2626; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; padding:6px; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                        <button type="submit" class="btn btn-sm btn-danger" aria-label="Supprimer" title="Supprimer" onclick="return confirm('Voulez-vous vraiment supprimer ce plan ?')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
                               <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
                             </svg>
                         </button>

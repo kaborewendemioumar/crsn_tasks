@@ -37,6 +37,15 @@ name="description"
 placeholder="Description"
 style="width:100%;padding:8px;margin-bottom:15px;"></textarea>
 
+<label>Nombre de livrables prévus</label>
+
+<input
+type="number"
+name="nombre_livrables_prevus"
+min="0"
+value="0"
+style="width:100%;padding:8px;margin-bottom:15px;">
+
 <label>Priorité</label>
 
 <select

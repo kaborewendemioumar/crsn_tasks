@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Notifications\AccountActivated;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -50,28 +50,40 @@ class UserController extends Controller
         return view('users.edit', compact('user'));
     }
 
-    public function update(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
+   public function update(Request $request, $id)
+{
+    $user = User::findOrFail($id);
 
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email',
-            'role' => 'required',
-            'active' => 'nullable|boolean'
-        ]);
+    $request->validate([
+        'name' => 'required',
+        'email' => 'required|email',
+        'role' => 'required',
+        'active' => 'nullable|boolean'
+    ]);
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
-            'active' => $request->boolean('active', false)
-        ]);
+    // Mémoriser l'état avant modification
+    $wasActive = $user->active;
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'Utilisateur modifié.');
+    // Nouvel état demandé
+    $newActive = $request->boolean('active', false);
+
+    $user->update([
+        'name' => $request->name,
+        'email' => $request->email,
+        'role' => $request->role,
+        'active' => $newActive
+    ]);
+
+    // Envoyer l'e-mail uniquement lors du passage
+    // de compte inactif à compte actif
+    if (!$wasActive && $newActive) {
+        $user->notify(new AccountActivated());
     }
+
+    return redirect()
+        ->route('users.index')
+        ->with('success', 'Utilisateur modifié.');
+}
     public function updatePassword(Request $request, $id)
 {
     $user = User::findOrFail($id);

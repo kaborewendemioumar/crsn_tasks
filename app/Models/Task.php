@@ -13,6 +13,7 @@ class Task extends Model
         'plan_id',
         'titre',
         'description',
+        'nombre_livrables_prevus',
         'priorite',
         'statut',
         'date_limite'

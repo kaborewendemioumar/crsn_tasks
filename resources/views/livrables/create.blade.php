@@ -6,6 +6,15 @@
 Soumettre un Livrable
 </h2>
 
+@if($tasks->isEmpty())
+    <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-800">
+        <p class="font-semibold">Aucune tâche ne vous a encore été affectée.</p>
+        <p class="mt-1 text-sm">Vous pourrez déposer un livrable dès qu'une tâche vous sera affectée par le responsable.</p>
+        <a href="{{ route('livrables.index') }}" class="mt-4 inline-block rounded bg-slate-700 px-4 py-2 text-white">
+            Retour aux livrables
+        </a>
+    </div>
+@else
 <form
 action="{{ route('livrables.store') }}"
 method="POST"
@@ -65,6 +74,7 @@ value="Soumettre"
 style="background:red;color:white;padding:10px;border:none;">
 
 </form>
+@endif
 
 </div>
 

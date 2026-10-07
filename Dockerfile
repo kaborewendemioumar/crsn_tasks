@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Installer les dépendances système
+# Installer les dépendances système nécessaires à Laravel et PostgreSQL
 RUN apt-get update && apt-get install -y \
     nginx \
     git \
@@ -11,44 +11,40 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    && docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd zip
+    && docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Installer Node.js 20
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
-
-# Installer Composer
+# Installer Composer proprement
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Dossier de travail
+# Définir le dossier de travail
 WORKDIR /var/www/html
 
-# Copier le projet Laravel
+# Copier l'intégralité du projet (incluant les assets compilés)
 COPY . .
 
-# Installer les dépendances PHP
+# Configurer les variables d'environnement pour le build Composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# Installer les dépendances PHP de production de manière non-interactive
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Installer les dépendances JavaScript et compiler Vite
-RUN npm install
-RUN npm run build
-
-# Préparer les dossiers Laravel
+# Créer l'architecture de cache Laravel indispensable
 RUN mkdir -p \
     storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
     bootstrap/cache
 
-# Donner les permissions nécessaires
+# Attribuer les permissions correctes pour le serveur Nginx/PHP-FPM
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Configuration NGINX
+# Configuration du serveur Nginx
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 
-# Port utilisé par Render
+# Exposer le port par défaut attendu par Render
 EXPOSE 80
 
-# Démarrer PHP-FPM et NGINX
-CMD ["sh", "-c", "if [ -n \"$APP_KEY\" ]; then echo 'APP_KEY PRESENTE'; else echo 'APP_KEY ABSENTE'; fi; php-fpm -D && nginx -g 'daemon off;'"]
+# Exécuter les optimisations et démarrer les services au lancement du conteneur
+CMD sh -c "php artisan config:cache && php artisan route:cache && php artisan view:cache && php-fpm -D && nginx -g 'daemon off;'"

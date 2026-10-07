@@ -17,6 +17,23 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_new_users_are_logged_in_and_sent_to_welcome_page(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Nouvel utilisateur',
+            'email' => 'nouveau@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $this->assertDatabaseHas('users', [
+            'email' => 'nouveau@example.com',
+            'active' => false,
+        ]);
+        $response->assertRedirect(route('bienvenue', absolute: false));
+    }
+
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
         $user = User::factory()->create();
@@ -40,6 +57,29 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertGuest();
+    }
+
+    public function test_inactive_users_can_not_authenticate(): void
+    {
+        $user = User::factory()->create(['active' => false]);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+        $response->assertSessionHasErrors('email');
+    }
+
+    public function test_inactive_authenticated_users_are_logged_out_from_protected_routes(): void
+    {
+        $user = User::factory()->create(['active' => false]);
+
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $this->assertGuest();
+        $response->assertRedirect(route('account.pending', absolute: false));
     }
 
     public function test_users_can_logout(): void

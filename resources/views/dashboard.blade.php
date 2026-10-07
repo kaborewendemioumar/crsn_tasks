@@ -16,80 +16,100 @@
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
                 <!-- Plans -->
-                <div class="bg-blue-100 shadow rounded-lg p-6 border-l-4 border-blue-600">
+                <a href="{{ route('plans.index') }}"
+                   class="bg-blue-100 shadow rounded-lg p-6 border-l-4 border-blue-600 transition hover:shadow-lg hover:-translate-y-0.5">
                     <h3 class="text-lg font-bold">📋 Plans</h3>
                     <p class="text-4xl font-bold mt-4">
                         {{ $plans }}
                     </p>
-                </div>
+                    <span class="mt-3 block text-sm font-medium text-blue-800">Voir la liste</span>
+                </a>
 
                 <!-- Tâches -->
-                <div class="bg-green-100 shadow rounded-lg p-6 border-l-4 border-green-600">
+                <a href="{{ route('tasks.index') }}"
+                   class="bg-green-100 shadow rounded-lg p-6 border-l-4 border-green-600 transition hover:shadow-lg hover:-translate-y-0.5">
                     <h3 class="text-lg font-bold">✅ Tâches</h3>
                     <p class="text-4xl font-bold mt-4">
                         {{ $tasks }}
                     </p>
-                </div>
+                    <span class="mt-3 block text-sm font-medium text-green-800">Voir la liste</span>
+                </a>
 
                 <!-- Tâches en attente -->
-                <div class="bg-yellow-100 shadow rounded-lg p-6 border-l-4 border-yellow-600">
+                <a href="{{ route('tasks.index', ['filter' => 'pending']) }}"
+                   class="bg-yellow-100 shadow rounded-lg p-6 border-l-4 border-yellow-600 transition hover:shadow-lg hover:-translate-y-0.5">
                     <h3 class="text-lg font-bold">
                         ⏳ Tâches en attente
                     </h3>
                     <p class="text-4xl font-bold mt-4">
                         {{ $tasks_attente }}
                     </p>
-                </div>
+                    <span class="mt-3 block text-sm font-medium text-yellow-800">Voir la liste</span>
+                </a>
 
                 <!-- Tâches en retard -->
-                <div class="bg-red-100 shadow rounded-lg p-6 border-l-4 border-red-600">
+                <a href="{{ route('tasks.index', ['filter' => 'overdue']) }}"
+                   class="bg-red-100 shadow rounded-lg p-6 border-l-4 border-red-600 transition hover:shadow-lg hover:-translate-y-0.5">
                     <h3 class="text-lg font-bold">
                         ⚠️ Tâches en retard
                     </h3>
                     <p class="text-4xl font-bold mt-4">
                         {{ $tasks_retard }}
                     </p>
-                </div>
+                    <span class="mt-3 block text-sm font-medium text-red-800">Voir la liste</span>
+                </a>
 
                 <!-- Tâches terminées -->
-                <div class="bg-emerald-100 shadow rounded-lg p-6 border-l-4 border-emerald-600">
+                <a href="{{ route('tasks.index', ['filter' => 'completed']) }}"
+                   class="bg-emerald-100 shadow rounded-lg p-6 border-l-4 border-emerald-600 transition hover:shadow-lg hover:-translate-y-0.5">
                     <h3 class="text-lg font-bold">
                         ✔️ Tâches terminées
                     </h3>
                     <p class="text-4xl font-bold mt-4">
                         {{ $tasks_terminees }}
                     </p>
-                </div>
+                    <span class="mt-3 block text-sm font-medium text-emerald-800">Voir la liste</span>
+                </a>
 
                 <!-- Livrables soumis -->
-                <div class="bg-orange-100 shadow rounded-lg p-6 border-l-4 border-orange-600">
+                     <a href="{{ route('livrables.index', ['filter' => 'submitted']) }}"
+                   class="bg-orange-100 shadow rounded-lg p-6 border-l-4 border-orange-600 transition hover:shadow-lg hover:-translate-y-0.5">
                     <h3 class="text-lg font-bold">
                         📄 Livrables soumis
                     </h3>
                     <p class="text-4xl font-bold mt-4">
                         {{ $livrables_soumis }}
                     </p>
-                </div>
+                    <span class="mt-3 block text-sm font-medium text-orange-800">
+                        Voir l'historique
+                    </span>
+                </a>
 
                 <!-- Livrables validés -->
-                <div class="bg-purple-100 shadow rounded-lg p-6 border-l-4 border-purple-600">
+                     <a href="{{ route('livrables.index', ['filter' => 'validated']) }}"
+                   class="bg-purple-100 shadow rounded-lg p-6 border-l-4 border-purple-600 transition hover:shadow-lg hover:-translate-y-0.5">
                     <h3 class="text-lg font-bold">
                         🏆 Livrables validés
                     </h3>
                     <p class="text-4xl font-bold mt-4">
                         {{ $livrables_valides }}
                     </p>
-                </div>
+                    <span class="mt-3 block text-sm font-medium text-purple-800">
+                        Voir l'historique
+                    </span>
+                </a>
 
                 <!-- Rapports -->
-                <div class="bg-red-100 shadow rounded-lg p-6 border-l-4 border-red-600">
+                <a href="{{ route('rapports.index') }}"
+                   class="bg-red-100 shadow rounded-lg p-6 border-l-4 border-red-600 transition hover:shadow-lg hover:-translate-y-0.5">
                     <h3 class="text-lg font-bold">
                         📊 Rapports
                     </h3>
                     <p class="text-5xl font-extrabold mt-4 text-center">
                         {{ $rapports }}
                     </p>
-                </div>
+                    <span class="mt-3 block text-sm font-medium text-red-800">Voir la liste</span>
+                </a>
 
             </div>
 

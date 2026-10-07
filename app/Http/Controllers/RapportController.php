@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rapport;
+use App\Notifications\RapportStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,7 +42,7 @@ class RapportController extends Controller
             'titre' => $request->titre,
             'contenu' => $request->contenu,
             'date_rapport' => $request->date_rapport,
-            'statut' => 'Brouillon',
+            'statut' => 'Soumis',
         ]);
 
         return redirect()
@@ -75,8 +76,8 @@ class RapportController extends Controller
             abort(403, 'Vous ne pouvez pas modifier ce rapport.');
         }
 
-        if (Auth::user()->role === 'utilisateur' && in_array($rapport->statut, ['Soumis', 'Validé'], true)) {
-            abort(403, 'Ce rapport a déjà été traité et ne peut plus être modifié.');
+        if (Auth::user()->role === 'utilisateur' && $rapport->statut !== 'Rejeté') {
+            abort(403, 'Seul un rapport rejeté peut être corrigé.');
         }
 
         return view(
@@ -93,8 +94,8 @@ class RapportController extends Controller
             abort(403, 'Vous ne pouvez pas modifier ce rapport.');
         }
 
-        if (Auth::user()->role === 'utilisateur' && in_array($rapport->statut, ['Soumis', 'Validé'], true)) {
-            abort(403, 'Ce rapport a déjà été traité et ne peut plus être modifié.');
+        if (Auth::user()->role === 'utilisateur' && $rapport->statut !== 'Rejeté') {
+            abort(403, 'Seul un rapport rejeté peut être corrigé.');
         }
 
         $request->validate([
@@ -103,14 +104,15 @@ class RapportController extends Controller
             'date_rapport' => 'required|date',
         ]);
 
-        // Si le rapport était rejeté ou en correction, le passer à "Soumis" pour révision
-        $newStatut = in_array($rapport->statut, ['Rejeté', 'En correction']) ? 'Soumis' : $rapport->statut;
+        $resoumission = $rapport->statut === 'Rejeté';
+        $newStatut = $resoumission ? 'Soumis' : $rapport->statut;
 
         $rapport->update([
             'titre' => $request->titre,
             'contenu' => $request->contenu,
             'date_rapport' => $request->date_rapport,
             'statut' => $newStatut,
+            'commentaire_validation' => $resoumission ? null : $rapport->commentaire_validation,
         ]);
 
         return redirect()
@@ -123,6 +125,14 @@ class RapportController extends Controller
 
     public function valider(Request $request, Rapport $rapport)
 {
+        $request->validate([
+            'commentaire_validation' => 'required|string|max:1000',
+        ]);
+
+        if ($rapport->statut !== 'Soumis') {
+            return back()->with('error', 'Ce rapport doit être soumis avant une nouvelle validation.');
+        }
+
     $rapport->update([
 
         'statut' => 'Validé',
@@ -131,6 +141,14 @@ class RapportController extends Controller
             $request->commentaire_validation,
 
     ]);
+
+// Charger l'utilisateur propriétaire du rapport
+    $rapport->load('user');
+
+// Envoyer l'email à l'utilisateur
+    $rapport->user->notify(
+        new RapportStatusChanged($rapport)
+    );
 
     return redirect()
         ->route('rapports.show', $rapport->id)
@@ -149,14 +167,26 @@ public function rejeter(Request $request, Rapport $rapport)
 
     ]);
 
+    if ($rapport->statut !== 'Soumis') {
+        return back()->with('error', 'Ce rapport doit être soumis avant un nouveau rejet.');
+    }
+
     $rapport->update([
 
         'statut' => 'Rejeté',
 
-        'commentaire_validation' =>
-            $request->commentaire_validation,
+        'commentaire_rejet' =>
+            $request->commentaire_rejet,
 
     ]);
+
+// Charger l'utilisateur propriétaire du rapport
+    $rapport->load('user');
+
+// Envoyer l'email à l'utilisateur avec le motif du rejet
+    $rapport->user->notify(
+        new RapportStatusChanged($rapport)
+    );
 
     return redirect()
         ->route('rapports.show', $rapport->id)

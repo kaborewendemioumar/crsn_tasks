@@ -16,17 +16,27 @@ method="POST">
 
 <select
 name="task_id"
+id="task_id"
 style="width:100%;padding:8px;margin-bottom:15px;">
 
 @foreach($tasks as $task)
 
-<option value="{{ $task->id }}">
+<option value="{{ $task->id }}" data-livrables-prevus="{{ $task->nombre_livrables_prevus }}">
     {{ $task->titre }}
 </option>
 
 @endforeach
 
 </select>
+
+<label>Livrables prévus</label>
+
+<input
+type="number"
+id="nombre_livrables_prevus"
+value="{{ $tasks->first()->nombre_livrables_prevus ?? 0 }}"
+readonly
+style="width:100%;padding:8px;margin-bottom:15px;background:#f3f4f6;">
 
 <label>Utilisateur</label>
 
@@ -64,6 +74,15 @@ value="Affecter"
 style="background:red;color:white;padding:10px;border:none;">
 
 </form>
+
+<script>
+const taskSelect = document.getElementById('task_id');
+const livrablesPrevus = document.getElementById('nombre_livrables_prevus');
+
+taskSelect.addEventListener('change', function () {
+    livrablesPrevus.value = this.options[this.selectedIndex].dataset.livrablesPrevus;
+});
+</script>
 
 </div>
 

@@ -35,21 +35,13 @@
             </div>
         @endif
 
-        {{-- Message et action si le livrable est rejeté --}}
-        @if($livrable->statut == 'Rejeté' && auth()->id() === $livrable->user_id)
+        {{-- Message et action après une décision --}}
+        @if($livrable->statut === 'Rejeté' && auth()->id() === $livrable->user_id)
             <div class="alert alert-info">
                 <strong>💡 Correction disponible :</strong>
-                <p>Votre livrable a été rejeté. Veuillez corriger les erreurs mentionnées ci-dessus et resoummettre.</p>
+            <p>Vous pouvez corriger ce livrable puis le resoumettre pour une nouvelle vérification.</p>
                 <a href="{{ route('livrables.edit', $livrable->id) }}" class="btn btn-warning btn-sm">
                     ✏️ Corriger et resoummettre
-                </a>
-            </div>
-        @elseif($livrable->statut == 'En correction' && auth()->id() === $livrable->user_id)
-            <div class="alert alert-info">
-                <strong>🔄 Livrable en correction :</strong>
-                <p>Vous êtes en train de corriger ce livrable. Cliquez sur le lien ci-dessous pour continuer.</p>
-                <a href="{{ route('livrables.edit', $livrable->id) }}" class="btn btn-warning btn-sm">
-                    ✏️ Continuer la correction
                 </a>
             </div>
         @endif
@@ -72,12 +64,26 @@
     Validation du livrable
 </h3>
 
-<!-- Bouton Valider -->
+<label>
+    <strong>Commentaire de validation :</strong>
+</label>
+
+<br>
+
 <form action="{{ route('livrables.valider', $livrable->id) }}"
       method="POST"
       style="display:inline-block; margin-right:10px;">
 
     @csrf
+
+    <textarea
+        name="commentaire_validation"
+        rows="4"
+        required
+        style="width:100%;padding:10px;"
+        placeholder="Expliquez pourquoi le livrable est validé..."></textarea>
+
+    <br><br>
 
     <button type="submit"
             style="background:green;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;">

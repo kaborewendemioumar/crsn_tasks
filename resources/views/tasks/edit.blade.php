@@ -41,6 +41,15 @@ style="width:100%;padding:8px;margin-bottom:15px;">
 name="description"
 style="width:100%;padding:8px;margin-bottom:15px;">{{ $task->description }}</textarea>
 
+<label>Nombre de livrables prévus</label>
+
+<input
+type="number"
+name="nombre_livrables_prevus"
+min="0"
+value="{{ $task->nombre_livrables_prevus }}"
+style="width:100%;padding:8px;margin-bottom:15px;">
+
 <select
 name="priorite"
 style="width:100%;padding:8px;margin-bottom:15px;">
