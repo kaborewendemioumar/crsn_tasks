@@ -5,3 +5,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media (max-width: 991.98px) {
+	.navbar-collapse {
+		display: none;
+	}
+
+	.navbar-collapse.show {
+		display: block;
+	}
+}
+
+@media (min-width: 992px) {
+	.navbar-collapse {
+		display: flex;
+		flex-basis: auto;
+	}
+
+	.navbar-toggler {
+		display: none;
+	}
+}
