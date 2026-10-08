@@ -169,7 +169,9 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+        // Remplacez l'ancienne ligne 164 par celle-ci :
+    'secure' => env('SESSION_SECURE_COOKIE', env('APP_ENV') === 'production'),
+
 
     /*
     |--------------------------------------------------------------------------
