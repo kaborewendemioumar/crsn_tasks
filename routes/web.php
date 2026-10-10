@@ -230,12 +230,16 @@ Route::get('/bienvenue', function () {
 require __DIR__.'/auth.php';
 
 Route::get('/diagnostic-session', function (\Illuminate\Http\Request $request) {
-    return response()->json([
+    $response = response()->json([
         'session_driver' => config('session.driver'),
-        'session_cookie' => config('session.cookie'),
-        'session_secure' => config('session.secure'),
-        'session_domain' => config('session.domain'),
         'session_started' => $request->hasSession()
             && $request->session()->isStarted(),
     ])->cookie('diagnostic_cookie', 'test', 5);
+
+    return response()->json([
+        'session_driver' => config('session.driver'),
+        'session_started' => $request->hasSession()
+            && $request->session()->isStarted(),
+        'prepared_headers' => $response->headers->all(),
+    ]);
 });
