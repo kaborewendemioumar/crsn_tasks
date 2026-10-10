@@ -237,6 +237,5 @@ Route::get('/diagnostic-session', function (\Illuminate\Http\Request $request) {
         'session_domain' => config('session.domain'),
         'session_started' => $request->hasSession()
             && $request->session()->isStarted(),
-    ]);
+    ])->cookie('diagnostic_cookie', 'test', 5);
 });
-
