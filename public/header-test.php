@@ -1,6 +1,5 @@
-
+﻿
 <?php
-
 header('Content-Type: application/json');
 header('X-PHP-Test: present');
 header(
