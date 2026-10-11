@@ -229,12 +229,11 @@ Route::get('/bienvenue', function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('/diagnostic-session', function (\Illuminate\Http\Request $request) {
-    return response()->json([
-        'session_driver' => config('session.driver'),
-        'session_cookie' => config('session.cookie'),
-        'session_secure' => config('session.secure'),
-        'session_started' => $request->hasSession()
-            && $request->session()->isStarted(),
-    ])->cookie('diagnostic_cookie', 'test', 5);
+Route::get('/diagnostic-session', function () {
+    return response('Test des en-tetes HTTP')
+        ->header('Content-Type', 'text/plain')
+        ->header(
+            'Set-Cookie',
+            'diagnostic_cookie=test; Path=/; Max-Age=300; Secure; HttpOnly; SameSite=Lax'
+        );
 });
