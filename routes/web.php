@@ -231,11 +231,14 @@ require __DIR__.'/auth.php';
 
 
 
+
 Route::get('/diagnostic-session', function () {
     return response()->json([
-        'test' => 'Cookie emis par Laravel',
-    ])->header(
-        'Set-Cookie',
-        'laravel_test_cookie=ok; Path=/; Max-Age=300; Secure; HttpOnly; SameSite=Lax'
-    );
+        'test' => 'Reponse Laravel',
+    ])->header('X-Laravel-Test', 'present')
+      ->header('Content-Type', 'application/json')
+      ->header(
+          'Set-Cookie',
+          'laravel_test_cookie=ok; Path=/; Max-Age=300; Secure; HttpOnly; SameSite=Lax'
+      );
 });
